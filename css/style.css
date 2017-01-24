@@ -1,0 +1,15 @@
+#console {
+	border: solid;
+	height: 250px;
+	display: flex;
+	align-items: flex-end;
+}
+#console-content {
+	position: absolute;
+	bottom: 0px;
+}
+
+.msg {
+	width: 100%;
+	font-size: 25px;
+}
