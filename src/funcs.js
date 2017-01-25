@@ -5,11 +5,99 @@ $(document).ready(function() {
   $("#cmd").on('keyup', function (e) {
       if (e.keyCode == 13) {
           out(this.value);
+          execCmd(this.value);
           this.value='';
       }
   });
 });
 
+function updateStates(s){
+  {'grade':false,'id':false,'multi':false,'add':false,'del':false,'giveup':false,'idf':false,'nd',false}
+};
+  //commands
+  if (/idf\s*=\s*\d{1,3}\s*/.test(s)){
+    Vars.states.idf=true;
+  }else if (/nd\s*=\s*\d{1,3}\s*/.test(s)){
+    Vars.states.nd=true;
+  }else if (/add\s+.*/.test(s)){
+    Vars.states.add=true;
+  }else if (/del\s+\d+/.test(s)){
+    Vars.del=true;
+  }else if ("/\d{"+Vars.nd+"}/".test(s)){
+    Vars.
+  }
+        
+      
+      
+  }else if (Vars.score==-1 && ){
+
+  }else{
+
+  }}
+          
+
+
+function execCmd(s){
+  //commands
+  if (/idf\s*=\s*\d{1,3}\s*/.test(s)){
+    Vars.idf=Number(s.match(/\d{1,3}/)[0])
+  }else if (/nd\s*=\s*\d{1,3}\s*/.test(s)){
+    Vars.nd=Number(s.match(/\d{1,3}/)[0])
+  }else if (/new\s+.*/.test(s)){
+    var name = s.match(/new\s+(.*)/)[1];
+    for (i=0;i<Vars.data.length;i++){
+      if(i==0){
+        Vars[i].push(name);
+      }else{
+        Vars[i].push('');
+      }
+    }
+    printPrev();
+    out("A new column named"+name+" is created!","lime")
+  }else if (/delete\s+\d+/.test(s)){
+    var col = Number(s.match(/delete\s+(\d+)/)[1]);
+    for (i=0;i<Vars.data.length;i++){
+        Vars[i].splice(col-1,1);
+      }
+    printPrev();
+    out("A new column named"+name+" is created!","lime")
+  }else if ("/\d{"+Vars.nd+"}/".test(s)){
+      loc=locate('(/.*'+s+')$/')
+          Vars.states.id=false;
+          Vars.states.multi=true;
+          beep()
+          out('More than 1 students are located, please choose the correct one (input the number):','red')
+        }else{
+          Vars.states.id=true;
+        }
+        
+        
+      }else{
+        Vars.states.id=false;
+        beep();
+        out("This student isn't found!",'red')
+      }
+      
+      
+  }else if (Vars.score==-1 && ){
+
+  }else{
+
+  }
+          }
+            
+function locate(reg){
+    var found={'vars':[],'ids':[]};
+    var x='';
+    for (i=1;i<Vars.data.length;i++){
+      x=Vars.data[i][Vars.idf].match(reg);
+      if (x.length>0){
+        found.ids.push(i);
+        found.vars.push(x[0])
+      }
+    }
+    return found
+  }
 
 function prepare(evt){
   var file = evt.target.files[0]; // FileList object
@@ -19,9 +107,8 @@ function prepare(evt){
     var csv = event.target.result;
     window.Vars={};
     Vars.data=$.csv.toArrays(csv);
-    var tb=Vars.data.slice(0,4);
-    tb.splice(0,0,range(1,tb[0].length,1));
-    printTable(tb);
+    Vars.states={'grade':false,'id':false,'multi':false,'add':false,'del':false,'giveup':false};
+    printPrev();
     out("You've loaded '"+file.name+"'.");
     out("Total number of students: "+String(Vars.data.length-1));
     var reg=/[cC]\d{5,}/;
@@ -29,6 +116,7 @@ function prepare(evt){
       x=reg.test(Vars.data[1][i]);
       if (x){
         Vars.idf=i;
+        Vars.nd=4;
         out('The C number is found at column '+(Vars.idf+1)+', and the last 4 digits of it will be used to identify the students.','lime')
         out('If you want to change the identifier to other column, you can input "idf=xxx", where xxx is the column sequence number','blue');
         out('If you want to change the number of digits to be used, you can input "nd=xxx", where xxx is the number of digits.','blue');
@@ -74,23 +162,9 @@ function isAPIAvailable() {
   }
 }
 
-function handleFileSelect(evt) {
-  var file = evt.target.files[0]; // FileList object
-
-  // read the file metadata
-  var output = ''
-      output += '<span style="font-weight:bold;">' + escape(file.name) + '</span><br />\n';
-      output += ' - FileType: ' + (file.type || 'n/a') + '<br />\n';
-      output += ' - FileSize: ' + file.size + ' bytes<br />\n';
-      output += ' - LastModified: ' + (file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a') + '<br />\n';
-  // read the file contents
-  printTable(file);
-
-  // post the results
-  $('#list').append(output);
-}
-
-function printTable(data) {
+function printPrev() {
+    var data=Vars.data.slice(0,4);
+    data.splice(0,0,range(1,data[0].length,1));
     var html = '';
     for(var row in data) {
       html += '<thead><tr>\r\n';
