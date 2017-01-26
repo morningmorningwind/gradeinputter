@@ -24,7 +24,7 @@
         <label class="btn btn-warning btn-file">
           Browse <input id="file" name="files" type="file" accept=".csv,.txt" style="display: none;">
         </label>
-        <button type="button" id="saveBtn" class="btn btn-success pull-right" onclick="saveCSV('grades.csv',window.data1)">Save</button>
+        <button type="button" id="saveBtn" class="btn btn-success pull-right" onclick="saveCSV('grades.csv',Vars.data)">Save</button>
     </div>
     <br>
     <div class="row">
@@ -32,6 +32,7 @@
         <div id="console-content">
           <p class="msg">Welcome! </p>
           <p class="msg">Please browse the .csv file for recording grades.</p>
+          <p class="msg">For instructions, you can type "help" anytime.</p>
         </div>
       </div>
     </div>
@@ -51,16 +52,13 @@
       </div>
     </div>
   </div>
-  
-  
-  
-  <div >
-  </div>
-  <output id="list">
-  </output>
-  <hr />
-  <table id="contents" style="width:100%; height:200px;" border>
-  </table>
+  <footer>
+    <div class="text-center">
+      <p>Feedback: z.cao4@umiami.edu</p>
+      <p>© 2017 Zhenfeng Cao. All rights reserved.</p>
+    </div>
+  </footer>
+
   <script src="src/jquery.min.js"></script>
   <script src="src/bootstrap.min.js"></script>
   <script src="src/jquery.csv.js"></script>

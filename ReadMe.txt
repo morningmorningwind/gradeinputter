@@ -1,0 +1,1 @@
+Open grade-inputter.html in your Internet browser, and follow the instructions.

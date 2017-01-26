@@ -1,99 +1,176 @@
 $(document).ready(function() {
+  window.Vars={};
+  Vars.state=0.0;
+  Vars.mx=100;
+  Vars.col=-1;
+  Vars.idf=-1;
   if(isAPIAvailable()) {
     $('#file').bind('change', prepare);
   };
-  $("#cmd").on('keyup', function (e) {
+  $('#cmd').on('keyup', function (e) {
       if (e.keyCode == 13) {
+        if (this.value=="help"){
+          out("<hr>")
+          out("Steps:","orange")
+          out('1. create the columns for recording the grades on "Blackboard" beforehand (if they are created off-line, the online system may not be able to recognize).','red')
+          out("2. download the full grade book in .csv format (the comma-separated file type).",'blue')
+          out("3. browse the file, and enjoy (remember to save it when it is done).",'blue')
+          out("<hr>")
+          out("Commands:","orange")
+          out("col=9 (column #9 will be used to record the grades.)",'blue')
+          out("idf=3 (column #3 will be used to identify the students.)",'blue')
+          out("nd=4 (the last 4 digits of the identifier will be used to locate the students.)",'blue')
+          out("max=10 (the maxium allowed score is set to be 10---this is for automatic error-checking only)",'blue')
+          out("add Quiz2 (create a column named Quiz2.)",'blue')
+          out("del 10 (delete column #10)",'blue')
+          out("<hr>")
+        }else{
           out(this.value);
+          updateStates(this.value);
           execCmd(this.value);
+          }
           this.value='';
       }
   });
 });
 
 function updateStates(s){
-  {'grade':false,'id':false,'multi':false,'add':false,'del':false,'giveup':false,'idf':false,'nd',false}
-};
-  //commands
-  if (/idf\s*=\s*\d{1,3}\s*/.test(s)){
-    Vars.states.idf=true;
+  if (Vars.col==-1 || /col\s*=\s*\d{1,3}\s*/.test(s)){
+    Vars.state=1.1;
+  }else if ((Vars.idf==-1)||/idf\s*=\s*\d{1,3}\s*/.test(s)){
+    Vars.state=2.1;
   }else if (/nd\s*=\s*\d{1,3}\s*/.test(s)){
-    Vars.states.nd=true;
+    Vars.state=2.2;
   }else if (/add\s+.*/.test(s)){
-    Vars.states.add=true;
+    Vars.state=2.3;
   }else if (/del\s+\d+/.test(s)){
-    Vars.del=true;
-  }else if ("/\d{"+Vars.nd+"}/".test(s)){
-    Vars.
-  }
-        
-      
-      
-  }else if (Vars.score==-1 && ){
-
+    Vars.state=2.4;
+  }else if (/max\s*=\s*\d{1,3}\s*/.test(s)){
+    Vars.state=2.5;
+  }else if (Vars.state!=4.0 && RegExp("\\d{"+Vars.nd+"}").test(s)){
+    Vars.state=3.0;
   }else{
-
-  }}
+    if (Vars.state==-1){
+      out("Invalid input",'red');
+      beep();
+    }
+  }
+}
           
 
 
 function execCmd(s){
   //commands
-  if (/idf\s*=\s*\d{1,3}\s*/.test(s)){
-    Vars.idf=Number(s.match(/\d{1,3}/)[0])
-  }else if (/nd\s*=\s*\d{1,3}\s*/.test(s)){
-    Vars.nd=Number(s.match(/\d{1,3}/)[0])
-  }else if (/new\s+.*/.test(s)){
-    var name = s.match(/new\s+(.*)/)[1];
+    if (Vars.state==1.1){
+      if (/col\s*=\s*\d{1,3}\s*/.test(s)){
+        var num=Number(s.match(/col\s*=\s*(\d{1,3})\s*/)[1])-1
+        if (num<Vars.data[0].length && num>0){
+          out('Grades will be recorded in column '+String(num+1)+'.','lime');
+          Vars.col=num;
+          Vars.state=-1;
+          out("Please input the last 4 digits of the student's C number:",'lime');
+        }else{
+          out('Out of range!','red');
+          beep();
+        }
+      }else{
+        out('Invalid input!','red');
+        beep();
+      }
+    }else if (Vars.state==2.1){
+    Vars.idf=Number(s.match(/\d{1,3}/)[0]);
+    out("Column "+Vars.idf+" is now set for identify the students.",'orange');
+    if (Vars.col==-1){
+      out('Please set the column for recording the grades by inputting "col=xxx", where xxx is the sequence number of the column (see "preview" at the bottom):','orange');
+      Vars.state=1.1;
+    }else{
+      Vars.state=-1;
+    }
+  }else if (Vars.state==2.2){
+    Vars.nd=Number(s.match(/\d{1,3}/)[0]);
+    out("Number of digits to use as locator is set to be "+s+".",'orange');
+    Vars.state=-1;
+  }else if (Vars.state==2.3){
+    var name = s.match(/add\s+(.*)/)[1];
     for (i=0;i<Vars.data.length;i++){
       if(i==0){
-        Vars[i].push(name);
+        Vars.data[i].push(name);
       }else{
-        Vars[i].push('');
+        Vars.data[i].push('');
       }
     }
     printPrev();
-    out("A new column named"+name+" is created!","lime")
-  }else if (/delete\s+\d+/.test(s)){
-    var col = Number(s.match(/delete\s+(\d+)/)[1]);
+    out("A new column named"+name+" is created!","lime");
+    Vars.state=-1;
+  }else if (Vars.state==2.4){
+    var col = Number(s.match(/del\s+(\d+)/)[1]);
     for (i=0;i<Vars.data.length;i++){
-        Vars[i].splice(col-1,1);
+        Vars.data[i].splice(col-1,1);
       }
     printPrev();
-    out("A new column named"+name+" is created!","lime")
-  }else if ("/\d{"+Vars.nd+"}/".test(s)){
-      loc=locate('(/.*'+s+')$/')
-          Vars.states.id=false;
-          Vars.states.multi=true;
-          beep()
-          out('More than 1 students are located, please choose the correct one (input the number):','red')
-        }else{
-          Vars.states.id=true;
-        }
-        
-        
+    out("Column "+col+" is deleted!","orange");
+    Vars.state=-1;
+  }else if (Vars.state==2.5){
+    var col = Number(s.match(/max\s*=\s*(\d{1,3})\s*/)[1]);
+    Vars.mx=Number(col);
+    out("The maximum grade is set to be "+col+".","orange");
+    Vars.state=-1;
+  }else if (Vars.state==3.0){
+    if (RegExp('^\\d{'+Vars.nd+'}$').test(s)){
+      Vars.loc=locate(RegExp('(.*'+s+')$'))
+      if (Vars.loc.ids.length>1){
+        beep()
+        out('More than 1 students are located, please choose the correct one (input the number in [ ]):','red')
+        for (i=0;i<Vars.loc.ids.length;i++){
+          out('['+String(i)+'] '+Vars.loc.vars[i],'orange');
+        };
+        Vars.state=3.1;
+      }else if(Vars.loc.ids.length==1){
+        Vars.id=Vars.loc.ids[0];
+        out(Vars.loc.vars[0]+"'s grade: ")
+        Vars.state=4.0
       }else{
-        Vars.states.id=false;
+        out('Student not found!','red')
         beep();
-        out("This student isn't found!",'red')
+      }}else{
+        out("Invalid input!","red");
+        beep()
       }
-      
-      
-  }else if (Vars.score==-1 && ){
-
-  }else{
-
+  }else if (Vars.state==3.1){
+    if (range(0,Vars.loc.ids.length-1,1).includes(Number(s))){
+      Vars.id=Vars.loc.ids[Number(s)];
+      out(Vars.loc.vars[Number(s)]+"'s grade: ");
+      Vars.state=4.0
+        }else{
+          out('Invalid input!','red');
+          beep();
+        }
+  }else if (Vars.state==4.0){
+    if (/\d+/.test(s)){
+      if (Number(s)>=0 && Number(s)<=Vars.mx){
+        Vars.data[Vars.id][Vars.col]=s;
+        Vars.state=3.0;
+        out('next student: ')
+      }else{
+        out('The grade should be within 0-'+String(Vars.mx)+'!','red');
+        beep();
+      }
+    }else{
+      out('Invalid input for grades!','red');
+      beep();
+    }
   }
-          }
-            
+}         
 function locate(reg){
     var found={'vars':[],'ids':[]};
     var x='';
     for (i=1;i<Vars.data.length;i++){
       x=Vars.data[i][Vars.idf].match(reg);
-      if (x.length>0){
-        found.ids.push(i);
-        found.vars.push(x[0])
+      if (x != null){
+        if (x.length>0){
+          found.ids.push(i);
+          found.vars.push(x[0])
+        }
       }
     }
     return found
@@ -105,9 +182,8 @@ function prepare(evt){
   reader.readAsText(file);
   reader.onload = function(event){
     var csv = event.target.result;
-    window.Vars={};
     Vars.data=$.csv.toArrays(csv);
-    Vars.states={'grade':false,'id':false,'multi':false,'add':false,'del':false,'giveup':false};
+    Vars.state=1.0;//{'grade':false,'id':false,'multi':false,'add':false,'del':false,'giveup':false};
     printPrev();
     out("You've loaded '"+file.name+"'.");
     out("Total number of students: "+String(Vars.data.length-1));
@@ -118,15 +194,17 @@ function prepare(evt){
         Vars.idf=i;
         Vars.nd=4;
         out('The C number is found at column '+(Vars.idf+1)+', and the last 4 digits of it will be used to identify the students.','lime')
-        out('If you want to change the identifier to other column, you can input "idf=xxx", where xxx is the column sequence number','blue');
-        out('If you want to change the number of digits to be used, you can input "nd=xxx", where xxx is the number of digits.','blue');
+        out('Please set the column for recording the grades by inputting "col=xxx", where xxx is the sequence number of the column (see "preview" at the bottom):','orange');
+        Vars.state=1.1;
+        $('#cmd').val('col=');
         break;
       };
-      if (i == Vars.data[0].length-1){
-        out('Please set the column for identifying the students by inputting "idf=xxx", where xxx is the sequence number of the column (see "preview" at the bottom).','blue');
-      };
+      }
+    if (Vars.idf==-1){
+        out("Can't locate the C number. Please set the column for identifying the students by hand (idf=xxx)!",'red');
+        beep();
+    
     }
-    out("now you may start recording grades (you can change settings at anytime using commands).",'lime')
   }
 }
 

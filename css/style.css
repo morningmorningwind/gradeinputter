@@ -12,7 +12,6 @@
 }
 
 #preview-content {
-  max-height:250px;
   overflow: scroll;
   max-width: 100%;
 }
