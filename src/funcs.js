@@ -35,7 +35,7 @@ $(document).ready(function() {
 });
 
 function updateStates(s){
-  if (Vars.col==-1 || /col\s*=\s*\d{1,3}\s*/.test(s)){
+  if (Vars.col==-1 || /col\s*=(\s*\d{1,3}[\s|,]*)+/.test(s)){
     Vars.state=1.1;
   }else if ((Vars.idf==-1)||/idf\s*=\s*\d{1,3}\s*/.test(s)){
     Vars.state=2.1;
@@ -62,10 +62,10 @@ function updateStates(s){
 function execCmd(s){
   //commands
     if (Vars.state==1.1){
-      if (/col\s*=\s*\d{1,3}\s*/.test(s)){
-        var num=Number(s.match(/col\s*=\s*(\d{1,3})\s*/)[1])-1
-        if (num<Vars.data[0].length && num>0){
-          out('Grades will be recorded in column '+String(num+1)+'.','lime');
+      if (/col\s*=(\s*\d{1,3}[\s|,]*)+/.test(s)){
+        var num=s.match(/\d{1,3}/g).map(function (x){return Number(x)-1})
+        if (Math.max.apply(null,num)<Vars.data[0].length && Math.min.apply(null,num)>0){
+          out('Grades will be recorded in column '+num.map(function(x){return x+1}).join(', ')+'.','lime');
           Vars.col=num;
           Vars.state=-1;
           out("Please input the last 4 digits of the student's C number:",'lime');
@@ -146,13 +146,16 @@ function execCmd(s){
           beep();
         }
   }else if (Vars.state==4.0){
-    if (/\d+/.test(s)){
-      if (Number(s)>=0 && Number(s)<=Vars.mx){
-        Vars.data[Vars.id][Vars.col]=s;
+  	s=s.match(/\d+/g).map(Number);
+    if (s.length==Vars.col.length){
+      if (Math.min.apply(null,s)>=0 && Math.max.apply(null,s)<=Vars.mx){
+      	for (i=0;i<s.length;i++){
+      		Vars.data[Vars.id][Vars.col[i]]=s[i];
+      	}
         Vars.state=3.0;
         out('next student: ')
       }else{
-        out('The grade should be within 0-'+String(Vars.mx)+'!','red');
+        out('The grades should be within 0-'+String(Vars.mx)+'!','red');
         beep();
       }
     }else{
