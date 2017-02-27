@@ -18,6 +18,7 @@ $(document).ready(function() {
           out("<hr>")
           out("Commands:","orange")
           out("col=9 (column #9 will be used to record the grades.)",'blue')
+          out("col=7, 9 (column #7 and #9 will be used to record the grades.)",'blue')
           out("idf=3 (column #3 will be used to identify the students.)",'blue')
           out("nd=4 (the last 4 digits of the identifier will be used to locate the students.)",'blue')
           out("max=10 (the maxium allowed score is set to be 10---this is for automatic error-checking only)",'blue')
@@ -35,10 +36,10 @@ $(document).ready(function() {
 });
 
 function updateStates(s){
-  if (Vars.col==-1 || /col\s*=(\s*\d{1,3}[\s|,]*)+/.test(s)){
-    Vars.state=1.1;
-  }else if ((Vars.idf==-1)||/idf\s*=\s*\d{1,3}\s*/.test(s)){
+  if ((Vars.idf==-1)||/idf\s*=\s*\d{1,3}\s*/.test(s)){
     Vars.state=2.1;
+  }else if (Vars.col==-1 || /col\s*=(\s*\d{1,3}[\s|,]*)+/.test(s)){
+    Vars.state=1.1;
   }else if (/nd\s*=\s*\d{1,3}\s*/.test(s)){
     Vars.state=2.2;
   }else if (/add\s+.*/.test(s)){
@@ -78,8 +79,9 @@ function execCmd(s){
         beep();
       }
     }else if (Vars.state==2.1){
-    Vars.idf=Number(s.match(/\d{1,3}/)[0]);
-    out("Column "+Vars.idf+" is now set for identify the students.",'orange');
+    if (Vars.idf==-1){Vars.nd=4;}
+    Vars.idf=Number(s.match(/\d{1,3}/)[0])-1;
+    out("The last "+String(Vars.nd)+ " digits of column "+(Vars.idf+1)+" are now set for identifying the students.",'orange');
     if (Vars.col==-1){
       out('Please set the column for recording the grades by inputting "col=xxx", where xxx is the sequence number of the column (see "preview" at the bottom):','orange');
       Vars.state=1.1;
