@@ -146,7 +146,7 @@ function execCmd(s){
           beep();
         }
   }else if (Vars.state==4.0){
-  	s=s.match(/\d+/g).map(Number);
+  	s=s.match(/(\d+(\.\d+)?)/g).map(Number);
     if (s.length==Vars.col.length){
       if (Math.min.apply(null,s)>=0 && Math.max.apply(null,s)<=Vars.mx){
       	for (i=0;i<s.length;i++){
